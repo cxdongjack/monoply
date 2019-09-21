@@ -9,7 +9,8 @@
         <style>
             .card{margin:10px;padding: 10px;}
             .board{display: flex;background: red;}
-            .board_role{width: 25vw;}
+            .board_role{width: 25vw;text-align: center;}
+            .board_role input{width: 100%; background: none; border: 0;text-align: center;}
             .operation{background: #00dcff;}
             button {width: 14vw; height: 8vw;}
             input{font-size: 16px;width: 30vw;}
@@ -19,6 +20,7 @@
     <div id="app">
         <div class="card board">
             <div class="board_role" v-for="name in players" @click="action=name">
+                <input/>
                 <div>{{ roles[name].name }}</div>
                 <div>{{ roles[name].score }}</div>
             </div>
