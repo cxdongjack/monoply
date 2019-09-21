@@ -3,13 +3,16 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no,minimal-ui">
         <meta name="format-detection" content="telephone=no">
-        <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+        <!-- <script src="https://cdn.jsdelivr.net/npm/vue"></script> -->
+        <script src="vue.js"></script>
 
         <style>
             .card{margin:10px;padding: 10px;}
             .board{display: flex;background: red;}
             .board_role{width: 25vw;}
             .operation{background: #00dcff;}
+            button {width: 14vw; height: 8vw;font-size: 16px;}
+            input{font-size: 16px;width: 30vw;}
         </style>
     </header>
 
@@ -26,9 +29,10 @@
             <input v-model="money">
             <button @click="action='submit'">确认</button>
         </div>
-        <div class="card" style="background:yellow">
+        <div class="card" style="background:yellow;margin-top: 300px;">
             <span>历史记录:</span>
-            <div v-for="item in history">{{ item.toString() }}</div>
+            <button @click="back">撤销</button>
+            <div v-for="item in reverseHistory">{{ item.toString() }}</div>
         </div>
     </div>
 
@@ -49,6 +53,11 @@
                 players: ['role1', 'role2', 'role3', 'role4'],
                 operations: ['bank', 'pay', 'role1', 'role2', 'role3', 'role4'],
                 history: []
+            },
+            computed: {
+                reverseHistory: function() {
+                    return this.history.slice().reverse();
+                }
             },
             watch: {
                 action: function() {
@@ -80,7 +89,25 @@
                         this.roles[sender].score -= amount;
                         this.roles[receiver].score += amount;
                     }.bind(this));
-                }
+                },
+                back: function() {
+                    if (!confirm('确认撤销?')) {
+                        return;
+                    }
+                    if(this.history.length == 0) {
+                        return;
+                    }
+                    var actions = formatAction(this.history.pop());
+                    console.log('actions', actions);
+                    actions.forEach(function(action) {
+                        var sender = action[0];
+                        var receiver = action[1];
+                        var amount = +action[2];
+                        this.roles[sender].score += amount;
+                        this.roles[receiver].score -= amount;
+                    }.bind(this));
+                },
+
             }
         })
 
