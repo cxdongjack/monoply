@@ -1,0 +1,105 @@
+<html>
+    <header>
+        <script src="vue.js"></script>
+        <style>
+            .card{margin:10px;padding: 10px;}
+            .board{display: flex;background: red;}
+            .board_role{width: 25vw;}
+            .operation{background: #00dcff;}
+        </style>
+    </header>
+
+    <div id="app">
+        <div class="card board">
+            <div class="board_role" v-for="name in players" @click="action=name">
+                <div>{{ roles[name].name }}</div>
+                <div>{{ roles[name].score }}</div>
+            </div>
+        </div>
+        <div class="card operation">
+            <button v-for="operation in operations" @click="action=operation">{{ operation }}</button>
+            <div>当前指令：{{ actions_cache.toString() }}</div>
+            <input v-model="money">
+            <button @click="action='submit'">确认</button>
+        </div>
+        <div class="card" style="background:yellow">
+            <span>历史记录:</span>
+            <div v-for="item in history">{{ item.toString() }}</div>
+        </div>
+    </div>
+
+    <script>
+        var app = new Vue({
+            el: '#app',
+            data: {
+                action: '',
+                actions_cache: [],
+                money: 0,
+                roles: {
+                    role1: {name: 'role1', score: 0},
+                    role2: {name: 'role2', score: 0},
+                    role3: {name: 'role3', score: 0},
+                    role4: {name: 'role4', score: 0},
+                    bank: {name: 'Bank', score: 99999999},
+                },
+                players: ['role1', 'role2', 'role3', 'role4'],
+                operations: ['bank', 'pay', 'role1', 'role2', 'role3', 'role4'],
+                history: []
+            },
+            watch: {
+                action: function() {
+                    if (this.action == 'submit') {
+                        this.actions_cache.push(this.money);
+                        this.money = 0;
+                        this.calculate();
+                        this.history.push(this.actions_cache);
+                        console.log(this.history);
+                        this.actions_cache = [];
+                        return;
+                    }
+                    this.actions_cache.push(this.action);
+                    console.log(this.actions_cache);
+                }
+            },
+            methods: {
+                calculate: function() {
+                    // example:
+                    // bank pay a 1000
+                    // bank pay a b c 1000
+                    // a b c pay bank 1000
+                    var actions = formatAction(this.actions_cache);
+                    console.log('actions', actions);
+                    actions.forEach(function(action) {
+                        var sender = action[0];
+                        var receiver = action[1];
+                        var amount = +action[2];
+                        this.roles[sender].score -= amount;
+                        this.roles[receiver].score += amount;
+                    }.bind(this));
+                }
+            }
+        })
+
+        function formatAction(data) {
+            // split sender receiver amount
+            var index = data.indexOf('pay');
+            var sender = data.slice(0, index);
+            var receiver = data.slice(index+1, data.length - 1);
+            var amount = data[data.length - 1]
+            // console.log(sender, receiver, amount);
+            // map
+            var target = sender.length >= receiver.length ? sender : receiver;
+            var result = target.map(function(item, index) {
+                return [
+                    sender[index] || sender[sender.length - 1],
+                    receiver[index] || receiver[receiver.length - 1],
+                    amount
+                ]
+            });
+            return result;
+        }
+        // testcase
+        // var test = ['bank','pay', 'role1', 'role2', 10];
+        // console.log(formatAction(test));
+    </script>
+</html>
