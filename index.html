@@ -28,6 +28,7 @@
             <div>当前指令：{{ actions_cache.toString() }}</div>
             <input v-model="money">
             <button @click="action='submit'">确认</button>
+            <button @click="clear">取消</button>
         </div>
         <div class="card" style="background:yellow;margin-top: 300px;">
             <span>历史记录:</span>
@@ -107,7 +108,9 @@
                         this.roles[receiver].score -= amount;
                     }.bind(this));
                 },
-
+                clear: function() {
+                    this.actions_cache = [];
+                }
             }
         })
 
